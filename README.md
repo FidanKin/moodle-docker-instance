@@ -1,6 +1,5 @@
----
 
-# Moodle Docker Taskfile 🐳🎓
+# Moodle Docker Taskfile 🐳🎓 #
 
 This Taskfile helps you run **Moodle** in Docker.
 
