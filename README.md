@@ -5,6 +5,9 @@ This Taskfile helps you run **Moodle** in Docker.
 
 Before using, make sure you have **Taskfile** installed: [https://taskfile.dev/docs/installation](https://taskfile.dev/docs/installation) ✅
 
+This project is a simplified wrapper around the official [Moodle Docker](https://github.com/moodlehq/moodle-docker) repository, licensed under **GPL-3.0**.  
+
+It removes unnecessary services and wraps everything in a Taskfile for one-command setup.
 ---
 
 ## Quick Start 🚀
@@ -33,3 +36,8 @@ After creating the directory, the script copies the config file from the Docker 
 ## Note ⚠️
 
 You always need to run the Taskfile with an argument specifying the directory name.
+
+## License
+
+This project is licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html).  
+Original Docker files are based on the official Moodle Docker repository.
