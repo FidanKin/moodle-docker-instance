@@ -3,11 +3,70 @@
 version: '3'
 
 vars:
-  GREETING: Hello, world!
+  PROJECT_NAME: '{{index .CLI_ARGS_LIST 0}}'
+  MOODLE_DOCKER_DIR_NAME: 'mdocker'
+  MOODLE_CODE_DIR_NAME: 'www'
 
 tasks:
-  default:
-    desc: Print a greeting message
+  create-instance:
+    desc: Create moodle instance with given dir
+    deps: [create-directory, install-moodle-docker, install-moodle-code, set-docker-env, moodle-up]
+  create-directory:
+    desc: Create directory for project
+    status:
+      - |
+        if [ -z "{{.PROJECT_NAME}}" ]; then
+          echo "Project name not set. Example, task build --project=name"
+          exit 0
+        fi
+        
+        if [ -d "{{.PROJECT_NAME}}" ]; then
+          echo "Project {{.PROJECT_NAME}} already exist !!! Cannot create project"
+          exit 0
+        fi
+        exit 1
     cmds:
-      - echo "{{.GREETING}}"
-    silent: true
+      - echo 'Create project "{{.PROJECT_NAME}}"'
+      - mkdir -p "{{.ROOT_DIR}}/{{.PROJECT_NAME}}"
+      - echo 'Folder created'
+  install-moodle-docker:
+    desc: Install docker compose file for run moodle in docker
+    dir: "./{{.PROJECT_NAME}}"
+    cmds:
+      - echo "Create folder {{.MOODLE_DOCKER_DIR_NAME}}"
+      - mkdir -p "{{.MOODLE_DOCKER_DIR_NAME}}"
+      - echo "Install docker compose files"
+      - git clone --depth 1 https://github.com/FidanKin/moodle-docker.git "{{.MOODLE_DOCKER_DIR_NAME}}"
+      - echo "Docker compose installed"
+  install-moodle-code:
+    desc: Install moodle files
+    dir: "./{{.PROJECT_NAME}}"
+    cmds:
+      - echo "Create folder for {{.MOODLE_CODE_DIR_NAME}}"
+      - mkdir -p "{{.MOODLE_CODE_DIR_NAME}}"
+      - echo "Download moodle files from v5.0.2"
+      - git clone -b v5.0.2 --depth 1 https://github.com/moodle/moodle.git "{{.MOODLE_CODE_DIR_NAME}}"
+      - echo "moodle code downloaded"
+  set-docker-env:
+    desc: Set environment for run moodle docker
+    cmds:
+      - cp "{{.ROOT_DIR}}/{{.PROJECT_NAME}}/{{.MOODLE_DOCKER_DIR_NAME}}/config.docker-template.php" "{{.ROOT_DIR}}/{{.PROJECT_NAME}}/{{.MOODLE_CODE_DIR_NAME}}/config.php"
+  moodle-up:
+    desc: Run moodle docker
+    dir: "{{.ROOT_DIR}}/{{.PROJECT_NAME}}/{{.MOODLE_DOCKER_DIR_NAME}}"
+    env:
+      MOODLE_DOCKER_WWWROOT: "{{.ROOT_DIR}}/{{.PROJECT_NAME}}/{{.MOODLE_CODE_DIR_NAME}}"
+      MOODLE_DOCKER_DB: 'pgsql'
+    cmds:
+      - bin/moodle-docker-compose up -d
+      - bin/moodle-docker-wait-for-db
+  moodle-down:
+    desc: Down moodle docker
+    env:
+      MOODLE_DOCKER_WWWROOT: "{{.ROOT_DIR}}/{{.PROJECT_NAME}}/{{.MOODLE_CODE_DIR_NAME}}"
+      MOODLE_DOCKER_DB: 'pgsql'
+    dir: "{{.ROOT_DIR}}/{{.PROJECT_NAME}}/{{.MOODLE_DOCKER_DIR_NAME}}"
+    cmd: bin/moodle-docker-compose down
+  docker-stop-all-containers:
+    cmd: docker stop $(docker ps -q)
+
