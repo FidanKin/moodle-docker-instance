@@ -10,7 +10,12 @@ vars:
 tasks:
   create-instance:
     desc: Create moodle instance with given dir
-    deps: [create-directory, install-moodle-docker, install-moodle-code, set-docker-env, moodle-up]
+    cmds:
+      - task: create-directory
+      - task: install-moodle-docker
+      - task: install-moodle-code
+      - task: set-docker-env
+      - task: moodle-up
   create-directory:
     desc: Create directory for project
     status:
