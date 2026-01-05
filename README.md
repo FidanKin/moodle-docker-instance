@@ -14,7 +14,7 @@ It removes unnecessary services and wraps everything in a Taskfile for one-comma
 
 ```bash
 git clone https://github.com/FidanKin/moodle-docker-instance.git .
-task create-instance --m502l
+task create-instance -- m502l
 ```
 
 Now you can open Moodle in your browser: [http://localhost:8000](http://localhost:8000) 🌐
